@@ -39,11 +39,11 @@ BAUD = 0
 
 # KİMİ DİNLİYORUZ? -> Drone 10'u (Lider)
 LISTEN_IP = "127.0.0.1"
-LISTEN_PORT = 7777  # Lider bu porta atıyor
+LISTEN_PORT = 7777
 
 # Arkadakine (Drone 30) Yayın Yap
 BROADCAST_IP = "127.0.0.1"
-BROADCAST_PORT = 7788  # Drone 30 burayı dinleyecek
+BROADCAST_PORT = 7788
 
 # Yer İstasyonu
 GS_IP = "127.0.0.1"
@@ -54,10 +54,10 @@ DRONE_ID = 20
 
 LOOP_HZ = 15.0
 DT = 1.0 / LOOP_HZ
-DIST_SET = 15.0  # Liderin 15m arkasında
+DIST_SET = 15.0
 BAND_MIN = 14.90
 BAND_MAX = 15.05
-VXY_MAX = 2.0  # Orta drone hızı
+VXY_MAX = 2.0
 VZ_MAX = 0.8
 WATCHDOG_S = 1.0
 
@@ -66,7 +66,7 @@ MIN_SAFE_DIST = 7.0  # 7 metre fazla yaklaşırsan kaçış modu devreye girsin
 # EŞİK DEĞERİ (3 metreden uzaksak lidere bak, yakınsak hizalan)
 YAW_ALIGN_THRESH = 3.0
 
-KP_POS = 0.5  # Drone 20 için biraz daha yumuşak P katsayısı
+KP_POS = 0.5
 KP_ALT = 0.3
 
 MAGIC = b"PGPS"
@@ -278,9 +278,9 @@ def follower_reader(conn):
 threading.Thread(target=follower_reader, args=(follower,), daemon=True).start()
 
 
-# ----------------------------------------------------------------------
+
 # UDP DİNLEYİCİ (Drone 10'dan Gelen Veri)
-# ----------------------------------------------------------------------
+
 
 def parse_udp_packet(data: bytes):
     if len(data) != 33: return None
@@ -330,9 +330,9 @@ def udp_listener():
 threading.Thread(target=udp_listener, daemon=True).start()
 
 
-# ----------------------------------------------------------------------
+
 # BROADCAST & GS
-# ----------------------------------------------------------------------
+
 
 def pack_v2(ts_ms, lat_e7, lon_e7, alt_rel_mm, armed: bool, mode_key: int, heading_cdeg: int):
     core = MAGIC + struct.pack(">B", VER_V2) + struct.pack(">QiiiBBH",
@@ -386,9 +386,9 @@ def position_broadcaster():
 threading.Thread(target=position_broadcaster, daemon=True).start()
 
 
-# ----------------------------------------------------------------------
+
 # MAIN LOOP (GÜNCELLENMİŞ MANTIK)
-# ----------------------------------------------------------------------
+
 
 def main():
     print("Sistem Basladi (Drone 20). Veriler bekleniyor...")
@@ -448,7 +448,7 @@ def main():
             alt_err = L_alt - F_alt
             vz = clamp(-KP_ALT * alt_err, -VZ_MAX, VZ_MAX)
 
-            # 5. AKILLI YAW (Look-at vs Align-to)
+            # 5. AKILLI YAW
             target_yaw = 0.0
             yaw_msg = ""
 

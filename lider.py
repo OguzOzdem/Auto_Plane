@@ -2,16 +2,14 @@ import time, struct, socket, zlib
 from pymavlink import mavutil
 import datetime
 
-# --- SİMÜLASYON AYARLARI ---
-# Sanal drone (SITL) genelde 14550 portundan yayın yapar.
 PIXHAWK_PORT = "udp:127.0.0.1:14550"
-BAUD = 0 # UDP bağlantısında baud rate önemsizdir.
+BAUD = 0
 
-# Sanal Takipçi Drone'un dinleyeceği adres (Localhost)
+
 TARGET_IP = "127.0.0.1"
-TARGET_PORT = 7777 # Simülasyon takipçisi bu portu dinlemeli (Kod 2 veya 4)
+TARGET_PORT = 7777
 
-# Sanal Yer İstasyonu (GS) adresi
+
 TARGET_GS_IP = "127.0.0.1"
 TARGET_GS_PORT = 5005
 DRONE_ID = 10
@@ -45,7 +43,7 @@ def map_mode_key(hb_msg) -> int:
     return MODE_OTHER
 
 def pack_v2(ts_ms, lat_e7, lon_e7, alt_rel_mm, armed: bool, mode_key: int, heading_cdeg: int):
-    # heading_cdeg: 0-36000 arası değer
+
     core = MAGIC + struct.pack(">B", VER) + struct.pack(">QiiiBBH",
             ts_ms, lat_e7, lon_e7, alt_rel_mm,
             1 if armed else 0, mode_key, heading_cdeg)
@@ -85,17 +83,17 @@ def main():
         lat_e7 = int(msg.lat)
         lon_e7 = int(msg.lon)
         alt_rel_mm = int(msg.relative_alt)
-        hdg = int(msg.hdg)  # YENİ: Pusula verisini (heading) al
+        hdg = int(msg.hdg)
         ts_ms = int(tnow * 1000)
 
-        # Pack fonksiyonuna 'hdg' yi de gönderiyoruz
+
         pkt = pack_v2(ts_ms, lat_e7, lon_e7, alt_rel_mm, armed, mode_key, hdg)
         try:
             sock.sendto(pkt, (TARGET_IP, TARGET_PORT))
         except Exception:
             pass
 
-        # 2. PAKET: Yer İstasyonuna (GS) String Log Gönder
+
         state_info = "Lider (SIM)"
 
         time_str = datetime.datetime.now().strftime("%H:%M:%S")
@@ -111,8 +109,8 @@ def main():
 
         try:
             sock.sendto(new_payload.encode('utf-8'), (TARGET_GS_IP, TARGET_GS_PORT))
-            # Test ederken ekranda da görmek için:
-            # print(f"GS Sent: {log_feedback}")
+
+
         except Exception:
             pass
 

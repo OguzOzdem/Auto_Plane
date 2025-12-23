@@ -31,13 +31,13 @@ flush_handler.setFormatter(formatter)
 logger.addHandler(flush_handler)
 logger.setLevel(logging.DEBUG)
 
-# ---------------- SİMÜLASYON AYARLARI ----------------
+# SİMÜLASYON
 
-# 3. Sanal Drone (SITL Instance 3)
+
 FOLLOWER_CONNECTION = "udp:127.0.0.1:14570"
 BAUD = 0
 
-# KİMİ DİNLİYORUZ? -> Drone 20'yi (Öndeki Takipçi)
+# Öndeki Takipçi
 LISTEN_IP = "127.0.0.1"
 LISTEN_PORT = 7788
 
@@ -46,7 +46,6 @@ GS_IP = "127.0.0.1"
 GS_PORT = 5005
 DRONE_ID = 30
 
-# Bizden sonrakine yayın (Opsiyonel)
 BROADCAST_IP = "127.0.0.1"
 BROADCAST_PORT = 7799
 
@@ -54,16 +53,15 @@ BROADCAST_PORT = 7799
 
 LOOP_HZ = 15.0
 DT = 1.0 / LOOP_HZ
-DIST_SET = 15.0  # Öndeki Drone'un kaç metre arkasında?
+DIST_SET = 15.0
 BAND_MIN = 14.90
 BAND_MAX = 15.05
-VXY_MAX = 2.3  # Maksimum hız
+VXY_MAX = 2.3
 VZ_MAX = 0.8
 WATCHDOG_S = 1.0
 
-MIN_SAFE_DIST = 7.0  # 7 metreden fazla yyaklaşırsan kaçış modu devreye girsin
+MIN_SAFE_DIST = 7.0  # 7 metreden fazla yaklaşırsan kaçış modu devreye girsin
 
-# YENİ EŞİK DEĞERİ
 YAW_ALIGN_THRESH = 3.0  # Hedefe 3m kala hizalanmaya başla
 
 KP_POS = 0.6
@@ -82,7 +80,7 @@ state = {
     "leader_alt_rel": None,
     "leader_armed": None,
     "leader_mode_key": MODE_OTHER,
-    "leader_heading": 0.0,  # Öndeki Drone'un Yönü
+    "leader_heading": 0.0,
     "t_last_leader": 0.0,
     "follower_lat": None,
     "follower_lon": None,
@@ -99,9 +97,9 @@ state = {
 lock = threading.Lock()
 
 
-# ----------------------------------------------------------------------
-# MATEMATİK
-# ----------------------------------------------------------------------
+
+# MATEMATİKSEL HARİTA İŞLEMELRİ
+
 
 def clamp(x, lo, hi):
     return lo if x < lo else hi if x > hi else x
@@ -134,9 +132,9 @@ def haversine_m(lat1, lon1, lat2, lon2):
     return 2 * R * math.asin(math.sqrt(a))
 
 
-# ----------------------------------------------------------------------
+
 # MAVLINK BAĞLANTISI
-# ----------------------------------------------------------------------
+
 
 def open_link(connection_string):
     print(f"Baglanti kuruluyor (Drone 30): {connection_string}")
@@ -162,9 +160,8 @@ def time_boot_ms():
     return int((time.monotonic() - BOOT_T0) * 1000) & 0xFFFFFFFF
 
 
-# ----------------------------------------------------------------------
 # VELOCITY + YAW KOMUTU
-# ----------------------------------------------------------------------
+
 
 def _send_velocity_yaw_internal(conn, vx, vy, vz, target_yaw_deg):
     type_mask = 2503  # Hız + Yaw aktif
@@ -238,9 +235,8 @@ def follower_writer(conn):
 threading.Thread(target=follower_writer, args=(follower,), daemon=True).start()
 
 
-# ----------------------------------------------------------------------
 # OKUYUCU THREADLER
-# ----------------------------------------------------------------------
+
 
 def map_mode_key(hb_msg) -> int:
     try:
@@ -277,9 +273,9 @@ def follower_reader(conn):
 threading.Thread(target=follower_reader, args=(follower,), daemon=True).start()
 
 
-# ----------------------------------------------------------------------
+
 # UDP DİNLEYİCİ
-# ----------------------------------------------------------------------
+
 
 def parse_udp_packet(data: bytes):
     if len(data) != 33: return None
